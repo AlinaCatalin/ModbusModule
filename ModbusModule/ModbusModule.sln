@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31729.503
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusModule", "ModbusModule.csproj", "{3E929787-4DC9-4A88-A983-2D3414E5B5E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageQueuesSimulator", "MessageQueuesSimulator\MessageQueuesSimulator.csproj", "{68E58C1D-7A4B-4F91-8A54-7160CDEAD73B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModbusLib", "..\ModbusLib\ModbusLib.csproj", "{EB411262-37D4-4646-B940-3A3142B3B6BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusModule", "ModbusModule\ModbusModule.csproj", "{08339FE7-8828-45B9-8EFC-10E2AB060032}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusLib", "ModbusLib\ModbusLib.csproj", "{7F98C672-5D4F-431D-9781-2B9B0BA9F3CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageQueuesController", "MessageQueuesController\MessageQueuesController.csproj", "{200AABD0-9E7F-4084-BA4B-61DD4AE1EBB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +17,27 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3E929787-4DC9-4A88-A983-2D3414E5B5E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E929787-4DC9-4A88-A983-2D3414E5B5E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E929787-4DC9-4A88-A983-2D3414E5B5E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E929787-4DC9-4A88-A983-2D3414E5B5E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB411262-37D4-4646-B940-3A3142B3B6BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB411262-37D4-4646-B940-3A3142B3B6BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB411262-37D4-4646-B940-3A3142B3B6BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB411262-37D4-4646-B940-3A3142B3B6BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68E58C1D-7A4B-4F91-8A54-7160CDEAD73B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68E58C1D-7A4B-4F91-8A54-7160CDEAD73B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68E58C1D-7A4B-4F91-8A54-7160CDEAD73B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68E58C1D-7A4B-4F91-8A54-7160CDEAD73B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08339FE7-8828-45B9-8EFC-10E2AB060032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08339FE7-8828-45B9-8EFC-10E2AB060032}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08339FE7-8828-45B9-8EFC-10E2AB060032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08339FE7-8828-45B9-8EFC-10E2AB060032}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F98C672-5D4F-431D-9781-2B9B0BA9F3CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F98C672-5D4F-431D-9781-2B9B0BA9F3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F98C672-5D4F-431D-9781-2B9B0BA9F3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F98C672-5D4F-431D-9781-2B9B0BA9F3CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{200AABD0-9E7F-4084-BA4B-61DD4AE1EBB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{200AABD0-9E7F-4084-BA4B-61DD4AE1EBB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{200AABD0-9E7F-4084-BA4B-61DD4AE1EBB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{200AABD0-9E7F-4084-BA4B-61DD4AE1EBB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {49A5CA41-8F51-49C0-A3D5-3CA066721FB6}
+		SolutionGuid = {56F2EF9B-9378-470B-9C0E-D7684C36D9F9}
 	EndGlobalSection
 EndGlobal
