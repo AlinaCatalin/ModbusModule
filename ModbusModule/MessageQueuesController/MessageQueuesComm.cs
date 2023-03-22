@@ -1,4 +1,9 @@
-﻿namespace MessageQueuesController
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+
+namespace MessageQueuesController
 {
     public class MessageQueuesComm
     {
@@ -12,37 +17,39 @@
         private Queue<Bucket> type2MessagesQueue = new();
         private Queue<Bucket> finalMessagesQueue = new();
 
+        private object type2MessagesQueueLock = new();
+        private object finalMessagesQueueLock = new();
 
         private AutoResetEvent plcCommAutoResetEvent = new(false);
         private Timer plcCommTimer;
 
-        private AutoResetEvent type2QueueAutoResetEvent = new(false);
-        private Timer type2QueueTimer;
-
-        private AutoResetEvent finalQueueAutoResetEvent = new(false);
-        private Timer finalQueueTimer;
+        private Thread plcCommTimerThread;
+        private Thread type2MessagesQueueThread;
+        private Thread finalMessagesQueueThread;
 
         public MessageQueuesComm()
         {
             InitializePlcQueuesWithDummyData();
 
             plcCommTimer = new(HandlePlcComm, plcCommAutoResetEvent, 0, 100);
-            type2QueueTimer = new(HandleType2Queue, type2QueueAutoResetEvent, 0, 100);
-            finalQueueTimer = new(HandleFinalQueue, finalQueueAutoResetEvent, 0, 100);
+
+            type2MessagesQueueThread = new(new ThreadStart(HandleType2Queue));
+
+            finalMessagesQueueThread = new(new ThreadStart(HandleFinalQueue));
+
+            plcCommTimerThread = new(new ThreadStart(() => plcCommAutoResetEvent.WaitOne()));
         }
 
         public void Start()
         {
-            plcCommAutoResetEvent.WaitOne();
-            type2QueueAutoResetEvent.WaitOne();
-            finalQueueAutoResetEvent.WaitOne();
+            plcCommTimerThread.Start();
+            type2MessagesQueueThread.Start();
+            finalMessagesQueueThread.Start();
         }
 
         public void Stop()
         {
             plcCommAutoResetEvent.Set();
-            type2QueueAutoResetEvent.Set();
-            finalQueueAutoResetEvent.Set();
         }
 
         private void HandlePlcComm(object? state)
@@ -51,118 +58,115 @@
 
             Console.WriteLine($"{DateTime.Now:h:mm:ss:ffff} -> Handling PLC Queues:");
 
-            if (plc1Queue.Count > 0)
-            {
-                byte[] messagePlc = plc1Queue.Dequeue();
+            ProcessPlcQueue(plc1Queue);
 
-                Bucket bucketPlc = ParseMessage(messagePlc);
-                if (bucketPlc.Type == 0)
-                {
-                    finalMessagesQueue.Enqueue(bucketPlc);
-                }
-                else
-                {
-                    type2MessagesQueue.Enqueue(bucketPlc);
-                }
+            ProcessPlcQueue(plc2Queue);
 
-                Console.WriteLine($"\tProcessed message: {messagePlc}");
-            }
-            if (plc2Queue.Count > 0)
-            {
-                byte[] messagePlc = plc2Queue.Dequeue();
+            ProcessPlcQueue(plc3Queue);
 
-                Bucket bucketPlc = ParseMessage(messagePlc);
-                if (bucketPlc.Type == 0)
-                {
-                    finalMessagesQueue.Enqueue(bucketPlc);
-                }
-                else
-                {
-                    type2MessagesQueue.Enqueue(bucketPlc);
-                }
-
-                Console.WriteLine($"\tProcessed message: {messagePlc}");
-            }
-            if (plc3Queue.Count > 0)
-            {
-                byte[] messagePlc = plc3Queue.Dequeue();
-
-                Bucket bucketPlc = ParseMessage(messagePlc);
-                if (bucketPlc.Type == 0)
-                {
-                    finalMessagesQueue.Enqueue(bucketPlc);
-                }
-                else
-                {
-                    type2MessagesQueue.Enqueue(bucketPlc);
-                }
-
-                Console.WriteLine($"\tProcessed message: {messagePlc}");
-            }
-            if (plc4Queue.Count > 0)
-            {
-                byte[] messagePlc = plc4Queue.Dequeue();
-
-                Bucket bucketPlc = ParseMessage(messagePlc);
-                if (bucketPlc.Type == 0)
-                {
-                    finalMessagesQueue.Enqueue(bucketPlc);
-                }
-                else
-                {
-                    type2MessagesQueue.Enqueue(bucketPlc);
-                }
-
-                Console.WriteLine($"\tProcessed message: {messagePlc}");
-            }
+            ProcessPlcQueue(plc4Queue);
 
         }
 
-        private void HandleType2Queue(object? state)
+        private void HandleType2Queue()
         {
-            // TODO: should send all the elements to FinalQueue and verify if it can be processed further
-            foreach (var bucket in type2MessagesQueue.AsEnumerable())
+            while(true)
             {
-                finalMessagesQueue.Enqueue(bucket);
+                lock (type2MessagesQueueLock)
+                {
+                    // TODO: should send the last element to FinalQueue
+                    // and verify if it can be processed further
+                    if (type2MessagesQueue.Count <= 0)
+                        continue;
+
+                    Bucket bucket = type2MessagesQueue.Dequeue();
+
+                    lock (finalMessagesQueueLock)
+                    {
+                        finalMessagesQueue.Enqueue(bucket);
+                    }
+                }
+
+                Thread.Sleep(20);
             }
         }
 
-        private void HandleFinalQueue(object? state)
+        private void HandleFinalQueue()
         {
-            if (finalMessagesQueue.Count <= 0)
-                return;
-
-            Bucket bucket = finalMessagesQueue.Dequeue();
-
-            if (bucket.Type != 0)
+            while (true)
             {
-                // receive Response and verify if it's a different message
-                // TODO: method to check the message
-                bool sameMessage = bucket.VerifyMessage();
-
-                if (sameMessage)
+                lock (finalMessagesQueueLock)
                 {
-                    // send back to Type2Queue
-                    type2MessagesQueue.Enqueue(bucket);
+                    if (finalMessagesQueue.Count <= 0)
+                        continue;
+
+                    Bucket bucket = finalMessagesQueue.Dequeue();
+
+                    if (bucket.Type == 0)
+                    {
+                        // receive Response for the bucket
+                        bucket.Rx = new byte[2] { 0x01, 0x01 }; // TODO: create a method for receiving a response
+
+                        // it's a type 1 message, and this means that we have finished the
+                        // receive for this bucket and we can send it to the upper layer
+                        ProcessedBuckets.Add(bucket);
+
+                        Console.WriteLine($"--- Processed bucket from Final Queue: {bucket}");
+
+                        continue;
+                    }
+
+                    // it's a type 2 message, this means that we receive a Response
+                    // and verify if it's a different message
+                    bool sameMessage = bucket.VerifyMessage();
+
+                    if (sameMessage)
+                    {
+                        // send back to Type2Queue
+                        lock (type2MessagesQueueLock)
+                        {
+                            type2MessagesQueue.Enqueue(bucket);
+                        }
+                        Console.WriteLine($"--- Did not receive response: {bucket}");
+                    }
+                    else
+                    {
+                        // receive the finish message for that bucket, and send it to the upper layer
+                        bucket.Rx = new byte[2] { 0x01, 0x01 };
+                        ProcessedBuckets.Add(bucket);
+                        Console.WriteLine($"--- Processed bucket from Final Queue: {bucket}");
+                    }
+
+                }
+
+                Thread.Sleep(10);
+            }
+        }
+
+        private void ProcessPlcQueue(Queue<byte[]> plcQueue)
+        {  
+            if (plcQueue.Count > 0)
+            {
+                byte[] messagePlc = plcQueue.Dequeue();
+
+                Bucket bucketPlc = ParseMessage(messagePlc);
+                if (bucketPlc.Type == 0)
+                {
+                    lock (finalMessagesQueueLock)
+                    {
+                        finalMessagesQueue.Enqueue(bucketPlc);
+                    }
                 }
                 else
                 {
-                    // receive the finish message for that bucket, and send it to the upper layer
-                    // TODO: update bucket Rx with the message received
-                    ProcessedBuckets.Add(bucket);
+                    lock (type2MessagesQueueLock)
+                    {
+                        type2MessagesQueue.Enqueue(bucketPlc);
+                    }
                 }
 
-                Console.WriteLine($"Processed bucket with type 2 message from Final Queue: {bucket}");
-                return;
+                Console.WriteLine($"\tProcessed message: {messagePlc.ConvertToString()}");
             }
-
-            // receive Response for the bucket
-            bucket.Rx = new byte[2] { 0x00, 0x00 };
-
-            // it's a type 1 message, and this means that we have finished the receive for this bucket and we can send it to the upper layer
-            ProcessedBuckets.Add(bucket);
-
-            Console.WriteLine($"Processed bucket with type 2 message from Final Queue: {bucket}");
         }
 
         private Bucket ParseMessage(byte[] message)
@@ -174,6 +178,8 @@
                 Tx = new byte[message.Length],
                 Type = random.Next(2)
             };
+
+            bucket.Tx = message;
 
             return bucket;
         }
