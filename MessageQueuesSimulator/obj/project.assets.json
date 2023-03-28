@@ -18,10 +18,14 @@
           "System.Security.Principal.Windows": "5.0.0"
         },
         "compile": {
-          "ref/netstandard2.0/Microsoft.Win32.Registry.dll": {}
+          "ref/netstandard2.0/Microsoft.Win32.Registry.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.0/Microsoft.Win32.Registry.dll": {}
+          "lib/netstandard2.0/Microsoft.Win32.Registry.dll": {
+            "related": ".xml"
+          }
         },
         "runtimeTargets": {
           "runtimes/win/lib/netstandard2.0/Microsoft.Win32.Registry.dll": {
@@ -93,10 +97,14 @@
           "runtime.native.System.IO.Ports": "6.0.0"
         },
         "compile": {
-          "lib/netstandard2.0/System.IO.Ports.dll": {}
+          "lib/netstandard2.0/System.IO.Ports.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.0/System.IO.Ports.dll": {}
+          "lib/netstandard2.0/System.IO.Ports.dll": {
+            "related": ".xml"
+          }
         },
         "build": {
           "buildTransitive/netcoreapp3.1/_._": {}
@@ -128,10 +136,14 @@
           "System.Security.Principal.Windows": "5.0.0"
         },
         "compile": {
-          "ref/netstandard2.0/System.Security.AccessControl.dll": {}
+          "ref/netstandard2.0/System.Security.AccessControl.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.0/System.Security.AccessControl.dll": {}
+          "lib/netstandard2.0/System.Security.AccessControl.dll": {
+            "related": ".xml"
+          }
         },
         "runtimeTargets": {
           "runtimes/win/lib/netcoreapp2.0/System.Security.AccessControl.dll": {
@@ -143,10 +155,14 @@
       "System.Security.Principal.Windows/5.0.0": {
         "type": "package",
         "compile": {
-          "ref/netcoreapp3.0/System.Security.Principal.Windows.dll": {}
+          "ref/netcoreapp3.0/System.Security.Principal.Windows.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/netstandard2.0/System.Security.Principal.Windows.dll": {}
+          "lib/netstandard2.0/System.Security.Principal.Windows.dll": {
+            "related": ".xml"
+          }
         },
         "runtimeTargets": {
           "runtimes/unix/lib/netcoreapp2.1/System.Security.Principal.Windows.dll": {
@@ -520,19 +536,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\User\\.nuget\\packages\\": {}
+    "C:\\Users\\tomaa\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Workspace\\MPGProjects\\ModbusSim\\MessageQueuesSimulator\\MessageQueuesSimulator.csproj",
+      "projectUniqueName": "C:\\Users\\tomaa\\Documents\\Facultate\\licenta\\.Kober\\.github\\ModbusModule\\MessageQueuesSimulator\\MessageQueuesSimulator.csproj",
       "projectName": "MessageQueuesSimulator",
-      "projectPath": "D:\\Workspace\\MPGProjects\\ModbusSim\\MessageQueuesSimulator\\MessageQueuesSimulator.csproj",
-      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "D:\\Workspace\\MPGProjects\\ModbusSim\\MessageQueuesSimulator\\obj\\",
+      "projectPath": "C:\\Users\\tomaa\\Documents\\Facultate\\licenta\\.Kober\\.github\\ModbusModule\\MessageQueuesSimulator\\MessageQueuesSimulator.csproj",
+      "packagesPath": "C:\\Users\\tomaa\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\tomaa\\Documents\\Facultate\\licenta\\.Kober\\.github\\ModbusModule\\MessageQueuesSimulator\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\tomaa\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -546,8 +562,8 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "projectReferences": {
-            "D:\\Workspace\\MPGProjects\\ModbusSim\\MessageQueuesController\\MessageQueuesController.csproj": {
-              "projectPath": "D:\\Workspace\\MPGProjects\\ModbusSim\\MessageQueuesController\\MessageQueuesController.csproj"
+            "C:\\Users\\tomaa\\Documents\\Facultate\\licenta\\.Kober\\.github\\ModbusModule\\MessageQueuesController\\MessageQueuesController.csproj": {
+              "projectPath": "C:\\Users\\tomaa\\Documents\\Facultate\\licenta\\.Kober\\.github\\ModbusModule\\MessageQueuesController\\MessageQueuesController.csproj"
             }
           }
         }
@@ -567,7 +583,8 @@
           "net47",
           "net471",
           "net472",
-          "net48"
+          "net48",
+          "net481"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -576,7 +593,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.407\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.402\\RuntimeIdentifierGraph.json"
       }
     }
   }

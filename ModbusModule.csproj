@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ModbusLib\ModbusLib.csproj" />
+    <ProjectReference Include="ModbusLib\ModbusLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

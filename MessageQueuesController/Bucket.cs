@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace MessageQueuesController {
     public class Bucket {
@@ -9,6 +10,11 @@ namespace MessageQueuesController {
         public bool VerifyMessage() {
             Random random = new();
             return random.Next(2) == 0 ? true : false;
+        }
+
+        public override string ToString()
+        {
+            return $"Bucket: Tx: {BitConverter.ToString(Tx)}";
         }
     }
 }

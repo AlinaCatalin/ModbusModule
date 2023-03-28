@@ -37,7 +37,7 @@ namespace MessageQueuesController {
 
         public MessageQueuesComm() {
 
-            serialPort = new("COM4") { 
+            serialPort = new("COM7") { 
                 BaudRate = 115200,
                 DataBits = 8,
                 Parity = Parity.Even,
@@ -62,8 +62,11 @@ namespace MessageQueuesController {
             new Thread(() => {
                 while (true) {
                     sendSemaphore.WaitOne();
+                    if (finalMessagesQueue.Count <= 0)
+                        continue;
                     currentBucket = finalMessagesQueue.Dequeue();
                     kober.Write(currentBucket.Tx);
+                    Console.WriteLine($"Trimis mesaj: {currentBucket}");
                     Debug.WriteLine("COnsum mesaje");
                     countTimeout = -1;
                 }
@@ -73,6 +76,8 @@ namespace MessageQueuesController {
             new Thread(() => {
                 while (true) {
                     recvSemaphore.WaitOne();
+                    if (proccesRecvMsg.Count <= 0)
+                        continue;
                     var local = proccesRecvMsg.Dequeue();
                     // decode msg and remove or add to type2queue
                     Decode(local);
@@ -80,6 +85,7 @@ namespace MessageQueuesController {
                 }
             }).Start();
         }
+
         public void Start() {
             plcCommAutoResetEvent.WaitOne();
         }
@@ -137,6 +143,8 @@ namespace MessageQueuesController {
                 Tx = new byte[message.Length],
                 Type = random.Next(1, 2)
             };
+
+            bucket.Tx = message;
 
             return bucket;
         }
