@@ -1,43 +1,29 @@
-﻿using ModbusLib.Interface;
-using ModbusLib;
-
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.IO.Ports;
+﻿using ModbusLib;
+using ModbusLib.Interface;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO.Ports;
+using System.Threading;
 
-namespace MessageQueuesController {
-    public class MessageQueuesComm : IObserver{
+namespace MessageQueuesController
+{
+    public class MessageQueuesSender 
+    {
+        private KoberSerial _koberSerial;
+        
+        private ConcurrentQueue<Bucket> _finalMessagesQueue = new();
 
-        private Timer plcCommTimer;
+        private Bucket _currentBucket;
 
-        private KoberSerial kober;
+        private Thread _sendMessageThread;
 
-        private bool status = false;
-        private Bucket currentBucket;
-        private int countTimeout = -1;
+        private Semaphore _sendMessageSemaphore = new(0, 1);
 
-        private Queue<byte[]> plc1Queue = new();
-        private Queue<byte[]> plc2Queue = new();
-        private Queue<byte[]> plc3Queue = new();
-        private Queue<byte[]> plc4Queue = new();
-
-        private static SerialPort serialPort;
-
-        private readonly Semaphore sendSemaphore;
-        private readonly Semaphore recvSemaphore;
-
-        private Queue<Bucket> proccesRecvMsg = new();
-        private Queue<Bucket> type2MessagesQueue = new();
-        private Queue<Bucket> finalMessagesQueue = new();
-        public List<Bucket> ProcessedBuckets{ get; set;}
-
-        private AutoResetEvent plcCommAutoResetEvent = new(false);
-
-        public MessageQueuesComm() {
-
-            serialPort = new("COM7") { 
+        public MessageQueuesSender(List<IObserver> observers) 
+        {
+            SerialPort serialPort = new("COM7") 
+            { 
                 BaudRate = 115200,
                 DataBits = 8,
                 Parity = Parity.Even,
@@ -45,142 +31,39 @@ namespace MessageQueuesController {
                 Handshake = Handshake.None
             };
 
-            kober = new (serialPort);
-            kober.AddObserver(this);
+            _koberSerial = new KoberSerial(serialPort);
 
-            InitializePlcQueuesWithDummyData();
-            sendSemaphore = new(0, 1);
-            recvSemaphore = new(0, 1);
-
-            plcCommTimer = new(HandlePlcComm, plcCommAutoResetEvent, 0, 100);
-
-            CreateThreads();
-        }
-
-        private void CreateThreads() {
-            //thread to send msg
-            new Thread(() => {
-                while (true) {
-                    sendSemaphore.WaitOne();
-                    if (finalMessagesQueue.Count <= 0)
-                        continue;
-                    currentBucket = finalMessagesQueue.Dequeue();
-                    kober.Write(currentBucket.Tx);
-                    Console.WriteLine($"Trimis mesaj: {currentBucket}");
-                    Debug.WriteLine("COnsum mesaje");
-                    countTimeout = -1;
-                }
-            }).Start();
-
-            //thread to receive msg
-            new Thread(() => {
-                while (true) {
-                    recvSemaphore.WaitOne();
-                    if (proccesRecvMsg.Count <= 0)
-                        continue;
-                    var local = proccesRecvMsg.Dequeue();
-                    // decode msg and remove or add to type2queue
-                    Decode(local);
-                    Debug.WriteLine("Consum raspuns");
-                }
-            }).Start();
-        }
-
-        public void Start() {
-            plcCommAutoResetEvent.WaitOne();
-        }
-
-        public void Stop() {
-            plcCommAutoResetEvent.Set();
-        }
-
-        private void AddtoModbusQueue(Queue<byte[]> q) {
-            if (q.Count > 0) {
-                byte[] messagePlc = q.Dequeue();
-
-                Bucket bucketPlc = ParseMessage(messagePlc);
-                if (bucketPlc.Type == 0) {
-                    finalMessagesQueue.Enqueue(bucketPlc);
-                } else {
-                    type2MessagesQueue.Enqueue(bucketPlc);
-                }
-
-                Console.WriteLine($"\tProcessed message: {messagePlc}");
-            }
-        }
-
-        private void AddToFinalQueue(Queue<Bucket> q) {
-            foreach (var bucket in q) {
-                finalMessagesQueue.Enqueue(bucket);
-            }
-        }
-        private void HandlePlcComm(object? state) {
-            countTimeout = (countTimeout + 1) % 5;
-
-            if (countTimeout > 0)
-                Console.WriteLine("Timeout error");
-            
-            Console.WriteLine($"{DateTime.Now:h:mm:ss:ffff} -> Handling PLC Queues:");
-
-            AddtoModbusQueue(plc1Queue);
-            AddtoModbusQueue(plc2Queue);
-            AddtoModbusQueue(plc3Queue);
-            AddtoModbusQueue(plc4Queue);
-
-            AddToFinalQueue(type2MessagesQueue);
-
-            if (!status) {
-                status = true;
-                sendSemaphore.Release();
+            foreach (var observer in observers)
+            {
+                _koberSerial.AddObserver(observer);
             }
 
+            _sendMessageThread = new Thread(SendMessage);
         }
 
-        private Bucket ParseMessage(byte[] message) {
-            Random random = new();
+        public void Start() => _sendMessageThread.Start();
 
-            Bucket bucket = new() {
-                Tx = new byte[message.Length],
-                Type = random.Next(1, 2)
-            };
+        public void ReleaseSendSemaphore() => _sendMessageSemaphore.Release();
 
-            bucket.Tx = message;
+        public void AddBucket(Bucket bucket) => _finalMessagesQueue.Enqueue(bucket);
 
-            return bucket;
-        }
+        public Bucket GetCurrentBucket() => _currentBucket;
 
-        private void InitializePlcQueuesWithDummyData() {
-            plc1Queue.Enqueue(new byte[] { 0x01, 0x05, 0x00, 0x10, 0xFF, 0x00, 0x8D, 0xD8 });
-            plc1Queue.Enqueue(new byte[] { 0x01, 0x05, 0x10, 0x10, 0xFF, 0x00, 0x8D, 0xD8 });
-            plc1Queue.Enqueue(new byte[] { 0x01, 0x05, 0x11, 0x00, 0xFF, 0x00, 0x8D, 0xD8 });
-            plc1Queue.Enqueue(new byte[] { 0x01, 0x05, 0xA0, 0xFF, 0xFF, 0x00, 0x8D, 0xD8 });
+        private void SendMessage()
+        {
+            while (true)
+            {
+                bool status = _finalMessagesQueue.TryDequeue(out Bucket bucket);
+                if (!status)
+                    continue;
 
-            plc2Queue.Enqueue(new byte[] { 0x02, 0x03, 0x00, 0x00, 0x00, 0x01, 0x85, 0xE8 });
-            plc2Queue.Enqueue(new byte[] { 0x02, 0x03, 0x00, 0x00, 0x00, 0x01, 0x90, 0xB5 });
+                _currentBucket = bucket;
 
-            plc3Queue.Enqueue(new byte[] { 0x03, 0x06, 0x00, 0x05, 0x11, 0x22, 0x14, 0x60 });
-            plc3Queue.Enqueue(new byte[] { 0x03, 0x06, 0x00, 0x05, 0x11, 0x22, 0x15, 0x60 });
-            plc3Queue.Enqueue(new byte[] { 0x03, 0x06, 0x00, 0x05, 0x11, 0x22, 0x16, 0x60 });
+                _koberSerial.Write(_currentBucket.Tx);
+                Console.WriteLine($"MessageQueuesSender --- Bucket sent to serial: {_currentBucket}");
 
-            plc4Queue.Enqueue(new byte[] { 0x04, 0x05, 0xA0, 0xFF, 0xFF, 0x00, 0x8D, 0xD8 });
-            plc4Queue.Enqueue(new byte[] { 0x04, 0x03, 0x00, 0x00, 0x00, 0x01, 0x90, 0xB5 });
-            plc4Queue.Enqueue(new byte[] { 0x04, 0x06, 0x00, 0x05, 0x11, 0x22, 0x16, 0x60 });
-
-            ProcessedBuckets = new();
-        }
-
-        public void Notify() {
-            byte[] data = kober.GetRecv();
-            currentBucket.Rx = data;
-            proccesRecvMsg.Enqueue(currentBucket);
-            Debug.WriteLine(System.Text.Encoding.UTF8.GetString(data));
-            recvSemaphore.Release();
-            sendSemaphore.Release();
-        }
-
-        public void Decode(Bucket b) {
-            if(b.Rx.Length > 0) {
-                type2MessagesQueue.Enqueue(b);
+                // if the thread succesfuly sends a message, then the thread must wait for the respone
+                _sendMessageSemaphore.WaitOne();
             }
         }
     }

@@ -1,6 +1,6 @@
 ﻿
 namespace ModbusLib.Interface {
     public interface IObserver {
-        void Notify();
+        void Notify(byte[] message);
     }
 }

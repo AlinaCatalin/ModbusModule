@@ -24,17 +24,16 @@ namespace ModbusLib {
         /// </summary>
         /// <param name="port">SerialPort object </param>
         public KoberSerial(SerialPort port) {
-            _builder = new byte[1024];
             _serial = port;
             _serial.DataReceived += (sender, args) => {
                 var local = new byte[_serial.BytesToRead];
                 _serial.Read(local, 0, local.Length);
+                _builder = local;
 
-                _builder = _builder.Concat(local).ToArray();
-                observers.ForEach(item => {
-                    item.Notify();
+                observers.ForEach(item => 
+                {
+                    item.Notify(local);
                 });
-                _builder = new byte[1024];
             };
 
             _serial.Open();

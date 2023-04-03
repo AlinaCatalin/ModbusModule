@@ -14,7 +14,7 @@ namespace MessageQueuesController {
 
         public override string ToString()
         {
-            return $"Bucket: Tx: {BitConverter.ToString(Tx)}";
+            return $"Bucket: Type:{Type} Tx: {BitConverter.ToString(Tx)}";
         }
     }
 }
