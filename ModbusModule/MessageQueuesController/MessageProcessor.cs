@@ -42,20 +42,26 @@ namespace MessageQueuesController
                 {
                     // received response for bucket, finished work with it
                     // TODO: send bucket to outer layer
+#if DEBUG
                     Console.WriteLine($"MessageProcessor --- Finished work with bucket: {localBucket}");
+#endif
                 }
                 else
                 {
                     // did not receive response for bucket, send it back to type2MessagesQueue
                     AddBucketToType2QueueEvent.Invoke(localBucket);
+#if DEBUG
                     Console.WriteLine($"MessageProcessor --- Readded bucket to Type2Queue: {localBucket}");
+#endif
                 }
             }
         }
 
         public void Notify(byte[] message)
         {
+#if DEBUG
             Console.WriteLine($"MessageProcessor --- Data received: {BitConverter.ToString(message)}");
+#endif
 
             // complete the Rx field of the currentBucket in process and add it to receivedMessagesQueue
             Bucket currentBucket = GetCurrentBucketInProcessingEvent.Invoke();

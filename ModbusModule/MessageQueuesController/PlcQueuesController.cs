@@ -48,9 +48,10 @@ namespace MessageQueuesController
             // if (Interlocked.Read(ref countTimeout) > 0)
             //     Console.WriteLine("Timeout error");
             // 
-            
-            Console.WriteLine($"PlcQueuesController --- {DateTime.Now:h:mm:ss:ffff} Handling PLC Queues:");
 
+#if DEBUG
+            Console.WriteLine($"PlcQueuesController --- {DateTime.Now:h:mm:ss:ffff} Handling PLC Queues:");
+#endif
             AddtoModbusQueue(_plc1Queue);
             AddtoModbusQueue(_plc2Queue);
             AddtoModbusQueue(_plc3Queue);
@@ -83,8 +84,9 @@ namespace MessageQueuesController
                 {
                     _type2MessagesQueue.Enqueue(bucketPlc);
                 }
-
+#if DEBUG
                 Console.WriteLine($"\tPlcQueuesController dequeued message: {BitConverter.ToString(messagePlc)}");
+#endif
                 // q.Enqueue(messagePlc);
             }
 
@@ -92,7 +94,8 @@ namespace MessageQueuesController
 
         private void AddToFinalQueue(ConcurrentQueue<Bucket> q)
         {
-            foreach (var bucket in q)
+            bool status = _type2MessagesQueue.TryDequeue(out Bucket bucket);
+            if (status)
             {
                 AddBucketToFinalQueueEvent.Invoke(bucket);
             }

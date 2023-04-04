@@ -60,8 +60,9 @@ namespace MessageQueuesController
                 _currentBucket = bucket;
 
                 _koberSerial.Write(_currentBucket.Tx);
+#if DEBUG
                 Console.WriteLine($"MessageQueuesSender --- Bucket sent to serial: {_currentBucket}");
-
+#endif
                 // if the thread succesfuly sends a message, then the thread must wait for the respone
                 _sendMessageSemaphore.WaitOne();
             }
