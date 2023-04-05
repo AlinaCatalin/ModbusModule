@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MessageQueuesController
 {
-    public class PlcQueuesController
+    internal class PlcQueuesController
     {
         public delegate void DelegateAddBucketQueueEvent(Bucket bucket);
 
@@ -38,6 +38,31 @@ namespace MessageQueuesController
         }
 
         public void AddBucketToType2MessagesQueue(Bucket bucket) => _type2MessagesQueue.Enqueue(bucket);
+
+        public bool AddMessageToPlcQueue(int plcId, byte[] message)
+        {
+            bool hasErrors = false;
+            switch (plcId)
+            {
+                case 1:
+                    _plc1Queue.Enqueue(message);
+                    break;
+                case 2:
+                    _plc2Queue.Enqueue(message);
+                    break;
+                case 3:
+                    _plc3Queue.Enqueue(message);
+                    break;
+                case 4:
+                    _plc4Queue.Enqueue(message);
+                    break;
+                default:
+                    hasErrors = true;
+                    break;
+            }
+
+            return hasErrors;
+        }
 
         private void HandlePlcComm(object? state)
         {

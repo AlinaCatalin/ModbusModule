@@ -8,23 +8,9 @@ namespace MessageQueuesSimulator
     {
         static void Main(string[] args) 
         {
-            PlcQueuesController plcQueuesController = new();
+            MessageQueuesFacade facade = new MessageQueuesFacade();
 
-            MessageProcessor messageProcessor = new();
-
-            List<IObserver> observers = new() { messageProcessor };
-
-            MessageQueuesSender messageQueuesSender = new(observers);
-
-            plcQueuesController.AddBucketToFinalQueueEvent += messageQueuesSender.AddBucket;
-
-            messageProcessor.AddBucketToType2QueueEvent += plcQueuesController.AddBucketToType2MessagesQueue;
-            messageProcessor.GetCurrentBucketInProcessingEvent += messageQueuesSender.GetCurrentBucket;
-            messageProcessor.MessageForCurrentBucketReceivedEvent += messageQueuesSender.ReleaseSendSemaphore;
-
-            plcQueuesController.Start();
-            messageQueuesSender.Start();
-            messageProcessor.Start();
+            facade.Start();
         }
     }
 }
