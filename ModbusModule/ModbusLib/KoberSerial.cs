@@ -26,6 +26,9 @@ namespace ModbusLib {
         public KoberSerial(SerialPort port) {
             _serial = port;
             _serial.DataReceived += (sender, args) => {
+                if(_serial.BytesToRead <= 0)
+                    return;
+
                 var local = new byte[_serial.BytesToRead];
                 _serial.Read(local, 0, local.Length);
                 _builder = local;
