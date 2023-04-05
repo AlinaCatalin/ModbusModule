@@ -1,4 +1,5 @@
 ﻿using ModbusLib.Interface;
+using MpgLogger;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -42,6 +43,7 @@ namespace MessageQueuesController
                 {
                     // received response for bucket, finished work with it
                     // TODO: send bucket to outer layer
+                    MpgFileLogger.Instance.Log($"MessageProcessor --- Finished work with bucket: {localBucket}");
 #if DEBUG
                     Console.WriteLine($"MessageProcessor --- Finished work with bucket: {localBucket}");
 #endif
@@ -50,6 +52,7 @@ namespace MessageQueuesController
                 {
                     // did not receive response for bucket, send it back to type2MessagesQueue
                     AddBucketToType2QueueEvent.Invoke(localBucket);
+                    MpgFileLogger.Instance.Log($"MessageProcessor --- Readded bucket to Type2Queue: {localBucket}");
 #if DEBUG
                     Console.WriteLine($"MessageProcessor --- Readded bucket to Type2Queue: {localBucket}");
 #endif
@@ -59,6 +62,7 @@ namespace MessageQueuesController
 
         public void Notify(byte[] message)
         {
+            MpgFileLogger.Instance.Log($"MessageProcessor --- Data received: {BitConverter.ToString(message)}");
 #if DEBUG
             Console.WriteLine($"MessageProcessor --- Data received: {BitConverter.ToString(message)}");
 #endif

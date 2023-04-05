@@ -1,5 +1,6 @@
 ﻿using ModbusLib;
 using ModbusLib.Interface;
+using MpgLogger;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -83,6 +84,8 @@ namespace MessageQueuesController
                     // message was sent but no response was received in the specified time
                     // freeze the current status of the queues
                     IsRunning = false;
+
+                    MpgFileLogger.Instance.Log($"\t\t\t-------- Timeout error! --------", MpgFileLogger.LogType.Error);
                     Console.WriteLine($"\t\t\t-------- Timeout error! --------");
                 }
             }

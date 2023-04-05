@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MpgLogger;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,6 +75,7 @@ namespace MessageQueuesController
             //     Console.WriteLine("Timeout error");
             // 
 
+            MpgFileLogger.Instance.Log($"PlcQueuesController --- {DateTime.Now:h:mm:ss:ffff} Handling PLC Queues:");
 #if DEBUG
             Console.WriteLine($"PlcQueuesController --- {DateTime.Now:h:mm:ss:ffff} Handling PLC Queues:");
 #endif
@@ -109,6 +111,7 @@ namespace MessageQueuesController
                 {
                     _type2MessagesQueue.Enqueue(bucketPlc);
                 }
+                MpgFileLogger.Instance.Log($"\tPlcQueuesController dequeued message: {BitConverter.ToString(messagePlc)}");
 #if DEBUG
                 Console.WriteLine($"\tPlcQueuesController dequeued message: {BitConverter.ToString(messagePlc)}");
 #endif

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ModbusLib\ModbusLib.csproj" />
+    <ProjectReference Include="..\MpgFileLogger\MpgLogger.csproj" />
   </ItemGroup>
 
 </Project>

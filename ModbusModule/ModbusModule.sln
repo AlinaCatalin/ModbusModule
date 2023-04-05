@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModbusModule", "ModbusModul
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlcMessagesProducer", "PlcMessagesProducer\PlcMessagesProducer.csproj", "{65936EDF-64F6-45B0-ABDB-8A58519F7676}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MpgLogger", "MpgFileLogger\MpgLogger.csproj", "{6F2F14F3-E5E3-4AC8-8191-75F1A6B20C7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F2F14F3-E5E3-4AC8-8191-75F1A6B20C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F2F14F3-E5E3-4AC8-8191-75F1A6B20C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F2F14F3-E5E3-4AC8-8191-75F1A6B20C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F2F14F3-E5E3-4AC8-8191-75F1A6B20C7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
