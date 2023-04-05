@@ -10,6 +10,8 @@ namespace MessageQueuesController
 {
     internal class MessageQueuesSender 
     {
+        public bool IsRunning { get; private set; } = true;
+
         private KoberSerial _koberSerial;
         
         private ConcurrentQueue<Bucket> _finalMessagesQueue = new();
@@ -25,7 +27,7 @@ namespace MessageQueuesController
         {
             _sendSemaphoreTimeout = sendSempahoreTimeoutMiliseconds;
 
-            SerialPort serialPort = new("COM7") 
+            SerialPort serialPort = new("COM8") 
             { 
                 BaudRate = 115200,
                 DataBits = 8,
@@ -54,7 +56,7 @@ namespace MessageQueuesController
 
         private void SendMessage()
         {
-            while (true)
+            while (IsRunning)
             {
                 bool status = _finalMessagesQueue.TryDequeue(out Bucket bucket);
                 if (!status)
@@ -66,17 +68,22 @@ namespace MessageQueuesController
 #if DEBUG
                 Console.WriteLine($"MessageQueuesSender --- Bucket sent to serial: {_currentBucket}");
 #endif
+
+                // _sendMessageSemaphore.WaitOne();
+
                 // if the thread succesfuly sends a message, then the thread must wait for the respone
-                bool hasResumed = _sendMessageSemaphore.WaitOne(_sendSemaphoreTimeout);
-                if (hasResumed)
+                bool hasReceivedMessageInTime = _sendMessageSemaphore.WaitOne(_sendSemaphoreTimeout);
+                if (hasReceivedMessageInTime)
                 {
+                    // TODO:
                     // define a mechanism to automatically resume the queues
                 }
                 else
                 {
                     // message was sent but no response was received in the specified time
                     // freeze the current status of the queues
-
+                    IsRunning = false;
+                    Console.WriteLine($"\t\t\t-------- Timeout error! --------");
                 }
             }
         }

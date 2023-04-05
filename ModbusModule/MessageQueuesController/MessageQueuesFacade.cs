@@ -7,6 +7,8 @@ namespace MessageQueuesController
 {
     public class MessageQueuesFacade
     {
+        public bool IsMessageQueuesSenderRunning => _messageQueuesSender.IsRunning;
+
         private PlcQueuesController _plcQueuesController;
         private MessageProcessor _messageProcessor;
         private MessageQueuesSender _messageQueuesSender;
@@ -16,7 +18,7 @@ namespace MessageQueuesController
             _plcQueuesController = new PlcQueuesController();
             _messageProcessor = new MessageProcessor();
             List <IObserver> observers = new() { _messageProcessor };
-            _messageQueuesSender = new MessageQueuesSender(observers, 30);
+            _messageQueuesSender = new MessageQueuesSender(observers, 200);
 
             _plcQueuesController.AddBucketToFinalQueueEvent += _messageQueuesSender.AddBucket;
             _messageProcessor.AddBucketToType2QueueEvent += _plcQueuesController.AddBucketToType2MessagesQueue;
@@ -26,6 +28,8 @@ namespace MessageQueuesController
 
         public void Start()
         {
+            // calculating the initial threads of the application
+            // this threads do not include the ones responsible with sending and processing messages
             Process currentProcess = Process.GetCurrentProcess();
             ProcessThreadCollection appThreads = currentProcess.Threads;
             int initialThreadsCount = appThreads.Count;
@@ -35,10 +39,12 @@ namespace MessageQueuesController
                 Console.WriteLine($"\tThread[{i}]: {appThreads[i].Id}");
             }
 
+            // starting the threads
             _plcQueuesController.Start();
             _messageQueuesSender.Start();
             _messageProcessor.Start();
 
+            // dedicate a specific core of the cpu for the threads responsible with sending and processing messages
             currentProcess.Refresh();
             appThreads = currentProcess.Threads;
             int finalThreadsCount = appThreads.Count;
@@ -54,6 +60,8 @@ namespace MessageQueuesController
                 Console.WriteLine($"thread {i + initialThreadsCount} set to run on core: {i}");
             }
         }
+
+        public bool AddMessageToPlcQueues(byte[] message, int plcId) => _plcQueuesController.AddMessageToPlcQueue(plcId, message);
 
 
     }

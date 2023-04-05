@@ -1,4 +1,5 @@
 ﻿using MessageQueuesController;
+using PlcMessagesProducer;
 
 namespace MessageQueuesSimulator
 {
@@ -8,7 +9,14 @@ namespace MessageQueuesSimulator
         {
             MessageQueuesFacade facade = new MessageQueuesFacade();
 
+            PlcMessageProducer plcMessageProducer = new();
+            plcMessageProducer.AddPlcMessageEvent += facade.AddMessageToPlcQueues;
+            plcMessageProducer.Start();
+
             facade.Start();
         }
+
+        
+
     }
 }

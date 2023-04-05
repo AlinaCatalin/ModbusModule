@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MessageQueuesController", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModbusModule", "ModbusModule\ModbusModule.csproj", "{5A497CE6-8672-4DDB-AD0B-3A00AFD3B670}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlcMessagesProducer", "PlcMessagesProducer\PlcMessagesProducer.csproj", "{65936EDF-64F6-45B0-ABDB-8A58519F7676}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{5A497CE6-8672-4DDB-AD0B-3A00AFD3B670}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A497CE6-8672-4DDB-AD0B-3A00AFD3B670}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A497CE6-8672-4DDB-AD0B-3A00AFD3B670}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65936EDF-64F6-45B0-ABDB-8A58519F7676}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
