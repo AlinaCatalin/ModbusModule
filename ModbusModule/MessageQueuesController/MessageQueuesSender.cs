@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace MessageQueuesController
 {
-    public class MessageQueuesSender 
+    internal class MessageQueuesSender 
     {
         private KoberSerial _koberSerial;
         
@@ -19,9 +19,12 @@ namespace MessageQueuesController
         private Thread _sendMessageThread;
 
         private Semaphore _sendMessageSemaphore = new(0, 1);
+        private int _sendSemaphoreTimeout;
 
-        public MessageQueuesSender(List<IObserver> observers) 
+        public MessageQueuesSender(List<IObserver> observers, int sendSempahoreTimeoutMiliseconds) 
         {
+            _sendSemaphoreTimeout = sendSempahoreTimeoutMiliseconds;
+
             SerialPort serialPort = new("COM7") 
             { 
                 BaudRate = 115200,
@@ -64,7 +67,17 @@ namespace MessageQueuesController
                 Console.WriteLine($"MessageQueuesSender --- Bucket sent to serial: {_currentBucket}");
 #endif
                 // if the thread succesfuly sends a message, then the thread must wait for the respone
-                _sendMessageSemaphore.WaitOne();
+                bool hasResumed = _sendMessageSemaphore.WaitOne(_sendSemaphoreTimeout);
+                if (hasResumed)
+                {
+                    // define a mechanism to automatically resume the queues
+                }
+                else
+                {
+                    // message was sent but no response was received in the specified time
+                    // freeze the current status of the queues
+
+                }
             }
         }
     }

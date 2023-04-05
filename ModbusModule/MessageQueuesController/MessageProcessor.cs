@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace MessageQueuesController
 {
-    public class MessageProcessor : IObserver
+    internal class MessageProcessor : IObserver
     {
         public delegate void DelegateAddBucketQueueEvent(Bucket bucket);
         public delegate Bucket DelegateGetBucketEvent();
