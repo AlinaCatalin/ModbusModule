@@ -94,8 +94,7 @@ namespace MessageQueuesController
 
         private void AddToFinalQueue(ConcurrentQueue<Bucket> q)
         {
-            bool status = _type2MessagesQueue.TryDequeue(out Bucket bucket);
-            if (status)
+            while (_type2MessagesQueue.TryDequeue(out Bucket bucket))
             {
                 AddBucketToFinalQueueEvent.Invoke(bucket);
             }
